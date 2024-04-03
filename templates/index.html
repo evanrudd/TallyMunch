@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tally Munch</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            position: relative; /* Ensure positioning is relative for absolute positioning */
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        h2 {
+            text-align: center;
+        }
+        .logout-btn {
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+        form.search-form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        button.search-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button.search-btn:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tally Munch</h1>
+    <form action="{{ url_for('search') }}" method="POST" class="search-form">
+        <input type="text" name="restaurant" placeholder="Search for a restaurant">
+        <button type="submit" class="search-btn">Search</button>
+    </form>
+    <form action="{{ url_for('logout') }}" method="POST">
+        <button class="logout-btn">Logout</button>
+    </form>
+    <h2>Trending Restaurants</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Restaurant</th>
+                <th>Address</th>
+                <th>Hours</th>
+                <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+                    <td>{{ row["Restaurant"] }}</td>
+                    <td>{{ row["Address"] }}</td>
+                    <td>{{ row["Hours"] }}</td>
+                    <td>{{ row["Rating"] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="message">{{ msg }}</div>
+</body>
+</html>
