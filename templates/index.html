@@ -99,17 +99,17 @@
             <tr>
                 <th>Restaurant</th>
                 <th>Address</th>
-                <th>Hours</th>
                 <th>Rating</th>
+                <th>Price</th>
             </tr>
         </thead>
         <tbody>
             {% for row in rows %}
                 <tr>
-                    <td>{{ row["Restaurant"] }}</td>
-                    <td>{{ row["Address"] }}</td>
-                    <td>{{ row["Hours"] }}</td>
-                    <td>{{ row["Rating"] }}</td>
+                    <td><a href="{{ url_for('restaurant_info', restaurant_id=row.id) }}">{{ row["name"] }}</a></td>
+                    <td>{{ row["address"] }}</td>
+                    <td>{{ row["rating"] }}</td>
+                    <td>{{ row["price_display"] }}</td>
                 </tr>
             {% endfor %}
         </tbody>
