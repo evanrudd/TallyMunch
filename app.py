@@ -21,6 +21,14 @@ def login():
         return redirect(url_for('index'))
     return render_template('login.html')
 
+@app.route('/createaccount', methods=['GET', 'POST'])
+def create_account():
+    if request.method == 'POST':
+        # TODO: Authenticate the user
+        session['logged_in'] = True
+        return redirect(url_for('index'))
+    return render_template('createaccount.html')   
+
 @app.route('/logout', methods=['POST'])
 def logout():
     session.pop('logged_in', None)
