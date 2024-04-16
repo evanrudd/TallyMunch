@@ -7,6 +7,10 @@ Ensure in "app.py":
 if __name__ == "__main__":
   app.run(debug=True)
 ```
+Install mySQL import:
+```
+pip install mysql-connector-python
+```
 Then in the terminal in the root directory run:
 ```
 python3 app.py
