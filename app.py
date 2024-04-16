@@ -10,8 +10,8 @@ app = Flask(__name__)
 # TODO: change secret key
 app.secret_key = 'your_secret_key'
 
-def price_to_dollars(price):
-    return '$' * price
+# def price_to_dollars(price):      
+#     return '$' * price
 
 @app.route('/')
 def index():
@@ -24,13 +24,13 @@ def index():
         )
         cursor = connection.cursor(dictionary=True)
 
-        cursor.execute("SELECT * FROM restaurant ORDER BY trend_counter DESC LIMIT 10")
+        cursor.execute("SELECT * FROM Restaurants ORDER BY trend_counter DESC LIMIT 10")
         top_restaurants = cursor.fetchall()
 
         connection.close()
 
         for restaurant in top_restaurants:
-            restaurant['price_display'] = price_to_dollars(restaurant['price'])
+            restaurant['price_display'] = restaurant['price']       #remooved the price_to_dollars function since the default price from yelp is in the format we want already
 
         return render_template('index.html', rows=top_restaurants)
     else:
@@ -64,7 +64,7 @@ def logout():
 def search():
     if 'logged_in' in session:
         if request.method == 'POST':
-            search_query = request.form['restaurant']
+            search_query = request.form['estaurant']
 
             connection = mysql.connector.connect(
                 host="cop4710-tallymunch.c3gw2k8i8nc0.us-east-1.rds.amazonaws.com",
@@ -74,7 +74,7 @@ def search():
             )
             cursor = connection.cursor(dictionary=True)
 
-            sql_query = "SELECT * FROM restaurant WHERE name LIKE %s"
+            sql_query = "SELECT * FROM Restaurants WHERE name LIKE %s"
             cursor.execute(sql_query, ('%' + search_query + '%',))
             restaurants = cursor.fetchall()
 
@@ -86,7 +86,7 @@ def search():
     else:
         return redirect(url_for('login'))
 
-@app.route('/restaurant/<int:restaurant_id>')
+@app.route('/restaurant/<restaurant_id>')
 def restaurant_info(restaurant_id):
     connection = mysql.connector.connect(
         host="cop4710-tallymunch.c3gw2k8i8nc0.us-east-1.rds.amazonaws.com",
@@ -97,7 +97,7 @@ def restaurant_info(restaurant_id):
     cursor = connection.cursor(dictionary=True)
 
     # Execute MySQL query to fetch information about the restaurant with the specified ID
-    cursor.execute("SELECT * FROM restaurant WHERE id = %s", (restaurant_id,))
+    cursor.execute("SELECT * FROM Restaurants WHERE id = %s", (restaurant_id,))
     restaurant_info = cursor.fetchone()
 
     connection.close()
