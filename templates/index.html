@@ -19,6 +19,9 @@
         h2 {
             text-align: center;
         }
+        p {
+            text-align: center;
+        }
         .logout-btn {
             position: absolute;
             top: -10px;
@@ -40,8 +43,21 @@
         form.search-form {
             text-align: center;
             margin-bottom: 20px;
+            margin-right: 750px;
         }
         input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        form.foodSearch-form {
+            text-align: center;
+            margin-bottom: -40px;
+            margin-left: 750px;
+        }
+        .food-dropdown {
             padding: 10px;
             font-size: 16px;
             border-radius: 5px;
@@ -86,13 +102,26 @@
 </head>
 <body>
     <h1>Tally Munch</h1>
+    <p>Search via restaurant or food option!</p>
+    <form action="{{ url_for('search') }}" method="POST" class="foodSearch-form">
+        <select name="food" class="food-dropdown" required>
+            <option value="" disabled selected>Select your favorite cuisine</option>
+            {% for item in data %}
+                <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="search-btn">Search</button>
+    </form>
+
     <form action="{{ url_for('search') }}" method="POST" class="search-form">
         <input type="text" name="restaurant" placeholder="Search for a restaurant">
         <button type="submit" class="search-btn">Search</button>
     </form>
+
     <form action="{{ url_for('logout') }}" method="POST">
         <button class="logout-btn">Logout</button>
     </form>
+
     <h2>Trending Restaurants</h2>
     <table>
         <thead>

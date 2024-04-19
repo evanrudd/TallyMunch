@@ -26,12 +26,15 @@ def index():
         cursor.execute("SELECT * FROM Restaurants ORDER BY trend_counter DESC LIMIT 10")
         top_restaurants = cursor.fetchall()
 
+        cursor.execute("SELECT Food_category FROM Food_Option")
+        data = [item['Food_category'] for item in cursor.fetchall()]
+        
         connection.close()
 
         for restaurant in top_restaurants:
             restaurant['price_display'] = restaurant['price']       #remooved the price_to_dollars function since the default price from yelp is in the format we want already
 
-        return render_template('index.html', rows=top_restaurants)
+        return render_template('index.html', rows=top_restaurants, data=data)
     else:
         return redirect(url_for('login'))
 
@@ -117,25 +120,57 @@ def logout():
 def search():
     if 'logged_in' in session:
         if request.method == 'POST':
-            search_query = request.form['restaurant']
+            
+            if 'restaurant' in request.form:
+                search_query = request.form['restaurant']
 
-            connection = mysql.connector.connect(
-                host="cop4710-tallymunch.c3gw2k8i8nc0.us-east-1.rds.amazonaws.com",
-                user="admin",
-                password="COP4710!",
-                database="tally_munch"
-            )
-            cursor = connection.cursor(dictionary=True)
+                connection = mysql.connector.connect(
+                    host="cop4710-tallymunch.c3gw2k8i8nc0.us-east-1.rds.amazonaws.com",
+                    user="admin",
+                    password="COP4710!",
+                    database="tally_munch"
+                )
+                cursor = connection.cursor(dictionary=True)
 
-            sql_query = "SELECT * FROM Restaurants WHERE name LIKE %s"
-            cursor.execute(sql_query, ('%' + search_query + '%',))
-            restaurants = cursor.fetchall()
+                sql_query = "SELECT * FROM Restaurants WHERE name LIKE %s"
+                cursor.execute(sql_query, ('%' + search_query + '%',))
+                restaurants = cursor.fetchall()
 
-            connection.close()
+                connection.close()
 
-            return render_template('search.html', rows=restaurants)
-        else:
-            return render_template('search.html')
+                return render_template('search.html', rows=restaurants)
+            elif 'food' in request.form:
+                search_query = request.form['food']
+
+                connection = mysql.connector.connect(
+                    host="cop4710-tallymunch.c3gw2k8i8nc0.us-east-1.rds.amazonaws.com",
+                    user="admin",
+                    password="COP4710!",
+                    database="tally_munch"
+                )   
+                cursor = connection.cursor(dictionary=True)
+
+                sql_query = """
+                    SELECT * 
+                    FROM Restaurants 
+                    WHERE id IN (
+                        SELECT id 
+                        FROM RestaurantsFoodOptions 
+                        WHERE FoodOptionID IN (
+                            SELECT FoodOptionID 
+                            FROM Food_Option 
+                            WHERE Food_Category LIKE %s
+                        )
+                    )
+                """
+                cursor.execute(sql_query, ('%' + search_query + '%',))
+                restaurants = cursor.fetchall()
+
+                connection.close()
+
+                return render_template('search.html', rows=restaurants)
+            else:
+                return render_template('search.html')
     else:
         return redirect(url_for('login'))
 
@@ -171,6 +206,11 @@ def restaurant_info(restaurant_id):
 
     # Extract the names of features
     feature_names = [feature['Feature_Name'] for feature in features]
+
+    # Increment trend_counter for the clicked restaurant
+    update_query = "UPDATE Restaurants SET trend_counter = trend_counter + 1 WHERE id = %s"
+    cursor.execute(update_query, (restaurant_id,))
+    connection.commit()
 
     connection.close()
 
