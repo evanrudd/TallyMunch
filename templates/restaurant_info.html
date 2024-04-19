@@ -16,28 +16,73 @@
             margin: 20px auto;
             background-color: #fff;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
         h1 {
             color: #333;
+            margin-top: 0;
+            margin-bottom: 20px;
         }
         p {
             color: #666;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         strong {
             font-weight: bold;
+        }
+        img {
+            max-width: 400px;
+            height: 400px;
+            border-radius: 10px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .details {
+            margin-right: 240px; /* Adjusted margin-right to accommodate the image */
+        }
+        .features {
+            margin-top: 20px; /* Added margin-top to create space between details and features */
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            color: #333;
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+        }
+        li::before {
+            content: "•";
+            color: #666;
+            position: absolute;
+            left: 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>{{ restaurant.name }}</h1>
-        <p><strong>Address:</strong> {{ restaurant.address }}</p>
-        <p><strong>Rating:</strong> {{ restaurant.rating }}</p>
-        <p><strong>Price:</strong> {{ restaurant.price_display }}</p>
-        <!-- TODO: Add more from DB -->
+        <img src="{{ restaurant.image_url }}" alt="Restaurant Image">
+        <div class="details">
+            <h1>{{ restaurant.name }}</h1>
+            <p><strong>Address:</strong> {{ restaurant.address }}</p>
+            <p><strong>Rating:</strong> {{ restaurant.rating }} (Out of {{ restaurant.rating_count }} Ratings)</p>
+            <p><strong>Price:</strong> {{ restaurant.price }}</p>
+            <p><strong>Phone Number:</strong> {{ restaurant.phone_number }}</p>
+        </div>
+        <div class="features"> <!-- Added a container div for features -->
+            <h3>Features</h3>
+            <ul>
+                {% for feature in features %}
+                <li><p><strong>{{ feature }}</strong></p></li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 </body>
 </html>

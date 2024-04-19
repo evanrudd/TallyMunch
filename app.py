@@ -10,9 +10,6 @@ app = Flask(__name__)
 # TODO: change secret key
 app.secret_key = 'your_secret_key'
 
-# def price_to_dollars(price):      
-#     return '$' * price
-
 
 
 @app.route('/')
@@ -156,9 +153,28 @@ def restaurant_info(restaurant_id):
     cursor.execute("SELECT * FROM Restaurants WHERE id = %s", (restaurant_id,))
     restaurant_info = cursor.fetchone()
 
+
+
+
+    # Query to select features and amenities for the given restaurant_id
+    query = """
+            SELECT f.Feature_Name
+            FROM RestaurantFeatures AS RF
+            INNER JOIN Features_and_Amenities AS f ON RF.FeatureID = f.FeatureID
+            WHERE RF.id = %s
+        """
+
+    cursor.execute(query, (restaurant_id,))
+
+    # Fetch all the results
+    features = cursor.fetchall()
+
+    # Extract the names of features
+    feature_names = [feature['Feature_Name'] for feature in features]
+
     connection.close()
 
-    return render_template('restaurant_info.html', restaurant=restaurant_info)
+    return render_template('restaurant_info.html', restaurant=restaurant_info, features=feature_names)
 
 
 if __name__ == "__main__":
