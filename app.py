@@ -10,7 +10,7 @@ app = Flask(__name__)
 # TODO: change secret key
 app.secret_key = 'your_secret_key'
 
-
+currUser = ""
 
 @app.route('/')
 def index():
@@ -66,6 +66,7 @@ def login():
         if user:
             # If user is found, set session variable to indicate user is logged in
             session['logged_in'] = True
+            session['username'] = username
             return redirect(url_for('index'))
         else:
             # If user is not found, display error message and render login page again
@@ -84,6 +85,9 @@ def create_account():
         database="tally_munch"
     )
     cursor = connection.cursor(dictionary=True)
+
+    cursor.execute("SELECT Food_category FROM Food_Option")
+    data = [item['Food_category'] for item in cursor.fetchall()]
     
     if request.method == 'POST':
         # Get form data
@@ -92,21 +96,22 @@ def create_account():
         first_name = request.form['firstName']
         last_name = request.form['lastName']
         address = request.form['address']
-        dietary_restrictions = request.form['dietary_restrictions']
+        favorite_cuisine = request.form['favorite_cuisine']
 
         # Insert the form data into the 'users' table
-        insert_query = "INSERT INTO users (username, password, first_name, last_name, address, dietary_restrictions) VALUES (%s, %s, %s, %s, %s, %s)"
-        cursor.execute(insert_query, (username, password, first_name, last_name, address, dietary_restrictions))
+        insert_query = "INSERT INTO users (username, password, first_name, last_name, address, favorite_cuisine) VALUES (%s, %s, %s, %s, %s, %s)"
+        cursor.execute(insert_query, (username, password, first_name, last_name, address, favorite_cuisine))
         connection.commit()  # Commit the transaction
 
         # Set session variable to indicate user is logged in (you might want to adjust this based on your authentication logic)
         session['logged_in'] = True
+        session['username'] = username
         
         # Redirect to the index page
         return redirect(url_for('index'))
     
     # If the request method is GET, render the create account form
-    return render_template('createaccount.html')
+    return render_template('createaccount.html', data=data)
 
 
 
@@ -139,6 +144,7 @@ def search():
                 connection.close()
 
                 return render_template('search.html', rows=restaurants)
+            
             elif 'food' in request.form:
                 search_query = request.form['food']
 
@@ -169,8 +175,51 @@ def search():
                 connection.close()
 
                 return render_template('search.html', rows=restaurants)
-            else:
-                return render_template('search.html')
+            
+            elif 'searchByPreference' in request.form:
+                # Search by favorite cuisine
+                # Get the username from the session
+                username = session.get('username')
+
+                # Establish database connection
+                connection = mysql.connector.connect(
+                    host="cop4710-tallymunch.c3gw2k8i8nc0.us-east-1.rds.amazonaws.com",
+                    user="admin",
+                    password="COP4710!",
+                    database="tally_munch"
+                )
+                cursor = connection.cursor(dictionary=True)
+
+                # Query to get the favorite cuisine of the user
+                cursor.execute("SELECT favorite_cuisine FROM users WHERE username = %s", (username,))
+                user_data = cursor.fetchone()
+
+                if user_data:
+                    favorite_cuisine = user_data['favorite_cuisine']
+
+                    # Query to search for restaurants by favorite cuisine
+                    sql_query = """
+                        SELECT * 
+                        FROM Restaurants 
+                        WHERE id IN (
+                            SELECT id 
+                            FROM RestaurantsFoodOptions 
+                            WHERE FoodOptionID IN (
+                                SELECT FoodOptionID 
+                                FROM Food_Option 
+                                WHERE Food_Category LIKE %s
+                            )
+                        )
+                    """
+                    cursor.execute(sql_query, ('%' + favorite_cuisine + '%',))
+                    restaurants = cursor.fetchall()
+
+                    connection.close()
+
+                    return render_template('search.html', rows=restaurants)
+        
+        # Default return statement if no conditions are met
+        return render_template('search.html')
     else:
         return redirect(url_for('login'))
 
@@ -216,6 +265,10 @@ def restaurant_info(restaurant_id):
 
     return render_template('restaurant_info.html', restaurant=restaurant_info, features=feature_names)
 
+
+def changeCurrUser(x):
+    global currUser
+    currUser = x
 
 if __name__ == "__main__":
     app.run(debug=True)

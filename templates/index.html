@@ -54,7 +54,7 @@
         }
         form.foodSearch-form {
             text-align: center;
-            margin-bottom: -40px;
+            margin-bottom: -120px;
             margin-left: 750px;
         }
         .food-dropdown {
@@ -76,6 +76,16 @@
             margin-left: 10px;
             border-radius: 5px;
             cursor: pointer;
+        }
+        button.preference-button {
+            background-color: #808080;
+            color: white;
+            cursor:pointer;
+            text-align: center;
+            margin-left: 1600px;
+            margin-top: 10px;
+            padding: 15px;
+            box-sizing: content-box;
         }
         button.search-btn:hover {
             background-color: #0056b3;
@@ -105,12 +115,17 @@
     <p>Search via restaurant or food option!</p>
     <form action="{{ url_for('search') }}" method="POST" class="foodSearch-form">
         <select name="food" class="food-dropdown" required>
-            <option value="" disabled selected>Select your favorite cuisine</option>
+            <option value="" disabled selected>What are you craving?</option>
             {% for item in data %}
                 <option value="{{ item }}">{{ item }}</option>
             {% endfor %}
         </select>
         <button type="submit" class="search-btn">Search</button>
+    </form>
+
+    <form action="{{ url_for('search') }}" method="POST" class="search-form">
+        <button type="submit" class="preference-button" name="searchByPreference">Search by favorite cuisine</button>
+        <input type="hidden" name="searchByPreference" value="true">
     </form>
 
     <form action="{{ url_for('search') }}" method="POST" class="search-form">
