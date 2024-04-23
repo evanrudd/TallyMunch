@@ -120,6 +120,57 @@ def logout():
     session.pop('logged_in', None)
     return redirect(url_for('index'))
 
+@app.route('/settings', methods=['POST', 'GET'])
+def settings():
+    connection = mysql.connector.connect(
+        host="cop4710-tallymunch.c3gw2k8i8nc0.us-east-1.rds.amazonaws.com",
+        user="admin",
+        password="COP4710!",
+        database="tally_munch"
+    )
+    cursor = connection.cursor(dictionary=True)
+
+    cursor.execute("SELECT Food_category FROM Food_Option")
+    data = [item['Food_category'] for item in cursor.fetchall()]
+
+
+    if 'save_settings' in request.form:
+        password = request.form['password']
+        favorite_cuisine = request.form['favorite_cuisine']
+        username = session['username']
+        
+        # Query to check if the provided password matches the user's password
+        cursor.execute("SELECT password FROM users WHERE username = %s", (username,))
+        user_data = cursor.fetchone()
+        if user_data and user_data['password'] == password:
+            # If the password matches, update the favorite cuisine in the database
+            update_query = "UPDATE users SET favorite_cuisine = %s WHERE username = %s"
+            cursor.execute(update_query, (favorite_cuisine, username))
+            connection.commit()  # Commit the transaction
+            flash('Settings updated successfully!', 'success')
+        else:
+            flash('Incorrect password. Please try again.', 'error')
+
+    elif 'delete_account' in request.form:
+        delete_text = request.form['delete']
+        username = session['username']
+        
+        # Extracting the username from the delete text
+        delete_username = delete_text.split("DELETE ")[-1]
+
+        # Checking if the delete text matches the expected format
+        if delete_username == username:
+            # Delete the user from the users table
+            delete_query = "DELETE FROM users WHERE username = %s"
+            cursor.execute(delete_query, (username,))
+            connection.commit()  # Commit the transaction
+            flash('Account deleted successfully!', 'success')
+            # Redirect to the login page or any other appropriate page
+            return redirect(url_for('login'))
+        else:
+            flash('Incorrect delete text. Please enter the correct delete text.', 'error')
+
+    return render_template('settings.html', data=data)
 
 @app.route('/search', methods=['POST', 'GET'])
 def search():

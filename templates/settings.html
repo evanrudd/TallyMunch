@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Settings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .settings-container {
+            width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        input[type="submit"],
+        .save-settings {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        .delete-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background-color: #dc3545; /* Red color */
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333; /* Darker red color on hover */
+        }
+        input[type="submit"]:hover,
+        .save-settings:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>User Settings</h1>
+    <div class="settings-container">
+        <form action="{{ url_for('settings') }}" method="post">
+        
+            <div class="form-group">
+                <label for="password">Confirm Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="favorite-cuisine">Favorite Cuisine:</label>
+                <select name="favorite_cuisine" class="form-group" >
+                    <option value="" disabled selected>Select your favorite cuisine</option>
+                    {% for item in data %}
+                        <option value="{{ item }}">{{ item }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="delete">Type "DELETE *your username*" to delete your account:</label>
+                <input type="text" id="delete" name="delete" >
+            </div>
+            <input type="submit" name="save_settings" value="Save Settings">
+            <input type="submit" class="delete-btn" name="delete_account" value="Delete Account">
+        </form>
+    </div>
+</body>
+</html>
