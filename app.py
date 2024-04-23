@@ -192,9 +192,14 @@ def search():
                 cursor.execute(sql_query, ('%' + search_query + '%',))
                 restaurants = cursor.fetchall()
 
+                sql_query = "SELECT COUNT(*) AS total_restaurants FROM Restaurants WHERE name LIKE %s"
+                cursor.execute(sql_query, ('%' + search_query + '%',))
+                aggregated_result = cursor.fetchone()
+                total_restaurants = aggregated_result['total_restaurants']
+
                 connection.close()
 
-                return render_template('search.html', rows=restaurants)
+                return render_template('search.html', rows=restaurants, count=total_restaurants)
             
             elif 'food' in request.form:
                 search_query = request.form['food']
